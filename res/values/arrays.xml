@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+ <string-array name="proxy">
+  <item>HTTP</item>
+  <item>SOCKS</item>
+ </string-array>
+
+ <string-array name="proxy_values">
+  <item>http</item>
+  <item>socks</item>
+ </string-array>
+</resources>

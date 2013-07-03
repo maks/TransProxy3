@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<PreferenceCategory 
+	  android:title="Main Settings" 
+	  android:key="mainSettings">
+		<CheckBoxPreference 
+		  android:title="Proxy" 
+		  android:key="isEnabled" 
+		  android:shouldDisableView="true" 
+		  android:summary="Enable/Disable proxy" 
+		  android:id="@+id/enable"
+		  android:selectable="true" android:enabled="true">
+		 </CheckBoxPreference>
+	</PreferenceCategory>
+	
+    <PreferenceCategory 
+	  android:summary="Basic setup of transparent proxy" 
+	  android:title="Proxy Settings" 
+	  android:key="proxySettings">
+		<ListPreference 
+		  android:dialogTitle="Proxy Type" 
+		  android:summary="Type of proxy server" 
+		  android:title="Proxy Type" 
+		  android:dialogMessage="Please select proxy type" 
+		  android:defaultValue="http"
+		  android:key="proxyType" android:entries="@array/proxy" android:entryValues="@array/proxy_values" android:dialogLayout="@layout/proxylist">
+		</ListPreference>
+		<EditTextPreference 
+		  android:summary="Host address of the proxy server" 
+		  android:key="proxyHost" 
+		  android:title="Proxy Host">
+		</EditTextPreference>
+		<EditTextPreference 
+		  android:key="proxyPort" 
+		  android:title="Proxy Port" 
+		  android:numeric="integer"
+		  android:maxLength="5"
+		  android:summary="Host port of proxy server">
+		 </EditTextPreference>
+	</PreferenceCategory>
+	
+	<PreferenceCategory 
+	  android:summary="Settings of proxy authentication" 
+	  android:title="Proxy Authentication" 
+	  android:key="authSettings">
+		<CheckBoxPreference 
+		  android:title="Proxy Auth" 
+		  android:key="isAuthEnabled" 
+		  android:summary="Enable/disable proxy authentication" 
+		  android:shouldDisableView="true" 
+		  android:selectable="true" 
+		  android:defaultValue="false" android:enabled="true">
+		</CheckBoxPreference>
+		<EditTextPreference 
+		  android:summary="Username for proxy authentication" 
+		  android:key="username" 
+		  android:title="Proxy Username" android:dependency="isAuthEnabled">
+		</EditTextPreference>
+		<EditTextPreference 
+		  android:selectable="true" 
+		  android:key="password" 
+		  android:password="true"
+		  android:title="Proxy Password" android:dependency="isAuthEnabled">
+		 </EditTextPreference>
+		 <EditTextPreference 
+		  android:selectable="true" 
+		  android:key="domain" 
+		  android:summary="Doamin for NTLM authentication only" 
+		  android:title="NTLM Domain" android:dependency="isAuthEnabled">
+		</EditTextPreference>
+	</PreferenceCategory>
+	
+	<PreferenceCategory 
+	  android:summary="About" 
+	  android:title="About" 
+	  android:key="about">
+	  <EditTextPreference 
+	  	  android:layout="@layout/simple"
+		  android:selectable="false" 
+		  android:key="version" 
+		  android:title="Version"
+		  android:summary="TransProxy version ">
+		</EditTextPreference>
+	</PreferenceCategory>
+	  
+</PreferenceScreen>
