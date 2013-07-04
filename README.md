@@ -31,6 +31,8 @@ ourselves to have a x86 version for example or to just get a newer version.
 9. ndk-build
 ```
 
-## License (as per original developer "daveba"
+## License 
 
 Anyone is given full permission to dissect, fix, reuse anything and include it in their ROM as required.
+
+_(as per original developer "daveba")_
