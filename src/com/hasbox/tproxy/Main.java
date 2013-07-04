@@ -1,24 +1,30 @@
 package com.hasbox.tproxy;
 
 import android.app.Activity;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.preference.CheckBoxPreference;
-import android.os.Bundle;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
+import com.hasbox.tproxy.ShellCommand.CommandResult;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.io.*;
-
-import com.hasbox.tproxy.ShellCommand.CommandResult;
 
 public class Main extends PreferenceActivity {
 	public static final String PREFS_NAME = "prefs";
@@ -28,16 +34,13 @@ public class Main extends PreferenceActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-
-	
-		File f = new File("/system/xbin/iptables");
+	    File f = new File("/system/xbin/iptables");
 		if (!f.exists()) {
 			f = new File("/system/bin/iptables");
 			if (!f.exists()) {
 				alert("No iptables binary found on your ROM !", this);
 			}
 		}
-
 		f = new File("/system/xbin/su");
 		if (!f.exists()) {
 			f = new File("/system/bin/su");
@@ -45,7 +48,6 @@ public class Main extends PreferenceActivity {
 				alert("No su binary found on your ROM !", this);
 			}
 		}
-
 		try {
 		 basedir = getBaseContext().getFilesDir().getAbsolutePath();
 		} catch (Exception e) {}
@@ -56,6 +58,15 @@ public class Main extends PreferenceActivity {
 
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.mainview);
+		Button closeButton = new Button(this);
+		closeButton.setText("DONE");
+		closeButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Main.this.finish();
+            }
+        });
+		setListFooter(closeButton);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 	
