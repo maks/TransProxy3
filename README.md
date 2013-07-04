@@ -35,4 +35,4 @@ ourselves to have a x86 version for example or to just get a newer version.
 
 Anyone is given full permission to dissect, fix, reuse anything and include it in their ROM as required.
 
-_(as per original developer "daveba")_
+_[as per post from original author "daveba"](http://forum.xda-developers.com/showpost.php?p=13563999&postcount=751)_
