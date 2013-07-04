@@ -7,7 +7,7 @@ port=$5
 auth=$6
 user=$7
 pass=$8
-domain=$9
+arc=$9
 
 PATH=$DIR:$PATH
 
@@ -82,7 +82,7 @@ redsocks {
    ;;
  esac
 
- $DIR/redsocks -p $DIR/redsocks.pid -c $DIR/redsocks.conf
+ $DIR/redsocks-$arch -p $DIR/redsocks.pid -c $DIR/redsocks.conf
  ;;
 stop)
   kill `cat $DIR/redsocks.pid`

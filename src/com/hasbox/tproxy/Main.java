@@ -31,7 +31,7 @@ public class Main extends PreferenceActivity {
 	final int START = 1;
 	final int STOP = 2;
 	String basedir = null;
-	
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    File f = new File("/system/xbin/iptables");
@@ -103,6 +103,8 @@ public class Main extends PreferenceActivity {
 			String proxy_type = settings.getString("proxyType", "http");
 			
 			String ipaddr;
+			String arch = System.getProperty("os.arch");
+			Log.d("tproxy", "arch:"+arch);
 
 			if (host.trim().equals("")) {
 				alert("Hostname/IP is empty", null);
@@ -135,7 +137,8 @@ public class Main extends PreferenceActivity {
 						+"port=" + port.trim() + " "
 						+"auth=" + auth + " "
 						+"user=" + user.trim() + " "
-						+"pass=*****");
+						+"pass=*****"
+						+ "arch="+arch);
 				
 				 ShellCommand cmd = new ShellCommand();
 				 CommandResult r = cmd.sh.runWaitFor(basedir+"/proxy.sh start " + basedir
@@ -144,7 +147,8 @@ public class Main extends PreferenceActivity {
 							+ " " + port.trim()
 							+ " " + auth
 							+ " " + user.trim()
-							+ " " + pass.trim());
+							+ " " + pass.trim()
+							+ " " + arch);
 
 				 if (!r.success()) {
 					    Log.v("tproxy", "Error starting proxy.sh (" + r.stderr + ")");
