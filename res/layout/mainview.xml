@@ -64,12 +64,6 @@
 		  android:password="true"
 		  android:title="Proxy Password" android:dependency="isAuthEnabled">
 		 </EditTextPreference>
-		 <EditTextPreference 
-		  android:selectable="true" 
-		  android:key="domain" 
-		  android:summary="Doamin for NTLM authentication only" 
-		  android:title="NTLM Domain" android:dependency="isAuthEnabled">
-		</EditTextPreference>
 	</PreferenceCategory>
 	
 	<PreferenceCategory 
@@ -81,7 +75,7 @@
 		  android:selectable="false" 
 		  android:key="version" 
 		  android:title="Version"
-		  android:summary="TransProxy version ">
+		  android:summary="TransProxy version">
 		</EditTextPreference>
 	</PreferenceCategory>
 	  

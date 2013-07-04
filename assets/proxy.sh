@@ -37,7 +37,6 @@ redsocks {
  type = http-relay;
  login = \"$user\";
  password = \"$pass\";
- domain = \"$domain\";
 } 
 redsocks {
  local_ip = 127.0.0.1;
@@ -47,7 +46,6 @@ redsocks {
  type = http-connect;
  login = \"$user\";
  password = \"$pass\";
- domain = \"$domain\"; 
 } 
 " >>$DIR/redsocks.conf
    ;;

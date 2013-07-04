@@ -89,7 +89,6 @@ public class Main extends PreferenceActivity {
 			Boolean auth = settings.getBoolean("isAuthEnabled", false);
 			String user = settings.getString("username", "");
 			String pass = settings.getString("password", "");
-			String domain = settings.getString("domain", "");
 			String proxy_type = settings.getString("proxyType", "http");
 			
 			String ipaddr;
@@ -125,8 +124,7 @@ public class Main extends PreferenceActivity {
 						+"port=" + port.trim() + " "
 						+"auth=" + auth + " "
 						+"user=" + user.trim() + " "
-						+"pass=*****"
-						+"domain=" + domain.trim());
+						+"pass=*****");
 				
 				 ShellCommand cmd = new ShellCommand();
 				 CommandResult r = cmd.sh.runWaitFor(basedir+"/proxy.sh start " + basedir
@@ -135,8 +133,7 @@ public class Main extends PreferenceActivity {
 							+ " " + port.trim()
 							+ " " + auth
 							+ " " + user.trim()
-							+ " " + pass.trim()
-							+ " " + domain.trim());
+							+ " " + pass.trim());
 
 				 if (!r.success()) {
 					    Log.v("tproxy", "Error starting proxy.sh (" + r.stderr + ")");
@@ -237,7 +234,6 @@ public class Main extends PreferenceActivity {
 	
 	findPreference("username").setEnabled(!b);
 	findPreference("password").setEnabled(!b);
-	findPreference("domain").setEnabled(!b);
 	findPreference("isAuthEnabled").setEnabled(!b);
 	findPreference("proxyType").setEnabled(!b);
 	findPreference("proxyHost").setEnabled(!b);
