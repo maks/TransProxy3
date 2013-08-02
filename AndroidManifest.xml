@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       android:versionCode="11"
-      package="com.hasbox.tproxy" android:versionName="3.09 alpha">
+      package="com.hasbox.tproxy" android:versionName="3.10 opensign">
       
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-sdk android:targetSdkVersion="16" android:minSdkVersion="15"/>

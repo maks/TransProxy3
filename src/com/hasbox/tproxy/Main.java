@@ -164,7 +164,7 @@ public class Main extends PreferenceActivity {
 			    "local_port = "+REDSOCKS_HTTP_PORT+";\n"+
 			    "ip = %s;\n"+
 			    "port = %s;\n"+
-			    "type = http-relay;\n"+
+			    "type = http-connect;\n"+
 			    "login = \"%s\";\n"+
 			    "password = \"%s\";\n"+
 			   "}\n"; 
