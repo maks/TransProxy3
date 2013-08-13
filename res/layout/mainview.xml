@@ -19,14 +19,6 @@
 	  android:summary="Basic setup of transparent proxy" 
 	  android:title="Proxy Settings" 
 	  android:key="proxySettings">
-		<ListPreference 
-		  android:dialogTitle="Proxy Type" 
-		  android:summary="Type of proxy server" 
-		  android:title="Proxy Type" 
-		  android:dialogMessage="Please select proxy type" 
-		  android:defaultValue="http"
-		  android:key="proxyType" android:entries="@array/proxy" android:entryValues="@array/proxy_values" android:dialogLayout="@layout/proxylist">
-		</ListPreference>
 		<EditTextPreference 
 		  android:summary="Host address of the proxy server" 
 		  android:key="proxyHost" 

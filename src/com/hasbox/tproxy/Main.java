@@ -2,6 +2,7 @@ package com.hasbox.tproxy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -24,15 +25,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Formatter;
 
 public class Main extends PreferenceActivity {
 	public static final String PREFS_NAME = "prefs";
     private static final int REDSOCKS_HTTP_PORT = 8123;
+    private static final int REDSOCKS_HTTPS_PORT = 8124;
     private static final String LOGTAG = Main.class.getSimpleName();
     private static final String REDSOCK_PID_FILE = "redsocks.pid";
+    private static final String HTTP_RELAY_TYPE = "http-connect";
+    private static final String HTTPS_RELAY_TYPE = "http-connect";
 	final int START = 1;
 	final int STOP = 2;
 	String basedir = null;
@@ -54,7 +56,7 @@ public class Main extends PreferenceActivity {
 			}
 		}
 		try {
-		 basedir = getBaseContext().getFilesDir().getAbsolutePath();
+		  basedir = getBaseContext().getFilesDir().getAbsolutePath();
 		} catch (Exception e) {}
 
 		copyfile("redsocks-armv71");
@@ -75,14 +77,8 @@ public class Main extends PreferenceActivity {
 		setListFooter(closeButton);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-	
 		CheckBoxPreference cb = (CheckBoxPreference) findPreference("isEnabled");
-
-		PackageInfo pi = null;
-		try {
-        	pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {}
-		findPreference("version").setSummary("TransProxy "+pi.versionName);
+		findPreference("version").setSummary("TransProxy "+getVersion(this));
 		
 		cb.setOnPreferenceChangeListener(new CheckBoxPreference.OnPreferenceChangeListener() {
 			public boolean onPreferenceChange( Preference preference,  Object newValue) {	
@@ -111,7 +107,6 @@ public class Main extends PreferenceActivity {
 			String user = settings.getString("username", "").replace("\\", "\\\\");
 			Log.d("TPROXY", "user:"+user);
 			String pass = settings.getString("password", "");
-			String proxy_type = settings.getString("proxyType", "http");
 			
 			String ipaddr;
 			String arch = System.getProperty("os.arch");
@@ -143,7 +138,6 @@ public class Main extends PreferenceActivity {
 				return false;
 			}
 			Log.v("tproxy","proxy.sh start " + basedir + " "
-					+"type=" + proxy_type + " "
 					+"host=" + ipaddr + " "
 					+"port=" + port.trim() + " "
 					+"auth=" + auth + " "
@@ -158,29 +152,28 @@ public class Main extends PreferenceActivity {
                     "daemon = on; \n" +
                     "redirector = iptables; \n" +
                     "} \n";
-			
 			String template1 = "redsocks { \n"+
 			    "local_ip = 127.0.0.1;\n"+
 			    "local_port = "+REDSOCKS_HTTP_PORT+";\n"+
 			    "ip = %s;\n"+
 			    "port = %s;\n"+
-			    "type = http-connect;\n"+
+			    "type = "+HTTP_RELAY_TYPE+";\n"+
 			    "login = \"%s\";\n"+
 			    "password = \"%s\";\n"+
 			   "}\n"; 
 			String template2 = "redsocks {\n"+
 			    "local_ip = 127.0.0.1;\n"+
-			    "local_port = 8124;\n"+
+			    "local_port = "+REDSOCKS_HTTPS_PORT+";\n"+
 			    "ip = %s;\n"+
 			    "port = %s;\n"+
-			    "type = http-connect;\n"+
+			    "type = "+HTTPS_RELAY_TYPE+";\n"+
 			    "login = \"%s\";\n"+
 			    "password = \"%s\";\n"+
 			   "}\n";
 			
 			try {
 			    Log.d("TPROXY", "CONF FILE: "+basedir);
-			    File f = new File(basedir+"/redsocks.conf");
+			    File f = new File(basedir, "redsocks.conf");
 			    f.createNewFile();
 			    Log.d("TPROXY", "EXISTS"+f.exists());
                 FileWriter writer = new FileWriter(f);
@@ -191,15 +184,8 @@ public class Main extends PreferenceActivity {
             } catch (IOException e) {
                 Log.e("TPROXY", "", e);
             }
-			
-			ShellCommand cmd = new ShellCommand();
-			//CommandResult r = cmd.sh.runWaitFor(basedir+"/runproxy.sh start " + basedir +" " + arch);
-			CommandResult r = cmd.sh.runWaitFor(basedir+"/redsocks-"+arch+" -p "+basedir+"/"+REDSOCK_PID_FILE+" -c "+basedir+"/redsocks.conf" );
 
-			if (!r.success()) {
-			    Log.v("tproxy", "Error starting proxy.sh (" + r.stderr + ")");
-				cmd.sh.runWaitFor(basedir+"/proxy.sh stop "+ basedir);
-				alert ("Failed to stop proxy.sh ("+ r.stderr + ")", null);
+			if (!startRedsocks(arch, basedir)) {
 			    return false;
 			}
 			
@@ -210,33 +196,65 @@ public class Main extends PreferenceActivity {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-			
 			if (checkPIDFile()) {
-				 r = cmd.su.runWaitFor(basedir+"/redirect.sh start " + proxy_type);
-				 
-				 if (!r.success()) {
-					    Log.v("tproxy", "Error starting redirect.sh (" + r.stderr +")");
-						cmd.sh.runWaitFor(basedir+"/proxy.sh stop "+ basedir);
-						alert ("Failed to start redirect.sh ("+ r.stderr + ")", null);
-					    return false;
-				} else {
-					 	Log.v("tproxy", "Successfully ran redirect.sh start " + proxy_type);
-						return true;
-				}
+			    boolean r = applyIptables(basedir);
+			    if (!r) {
+			        alert("Failed to start redirect.sh", this);
+			    }
+			    return r;
 			} else {
 				alert("Proxy failed to start", null);
 				return false;
 			}
 		} else { // stop tproxy
-		 	Log.v("tproxy", "Successfully ran redirect.sh stop");
-			ShellCommand cmd = new ShellCommand();
-			//cmd.sh.runWaitFor(basedir+"/proxy.sh stop "+basedir);
-			cmd.sh.runWaitFor("kill `cat "+basedir+"/redsocks.pid`");
-			new File(basedir, "redsocks.pid").delete();
-			new File(basedir, "redsocks.conf").delete();
-			cmd.su.runWaitFor(basedir+"/redirect.sh stop");
+		 	stopProxyClearIPTables();
 			return true;
 		}
+    }
+	
+    static boolean startRedsocks(String arch, String basedir) {
+        ShellCommand cmd = new ShellCommand();
+        CommandResult r = cmd.sh.runWaitFor(basedir+"/redsocks-"+arch+" -p "+basedir+"/"+REDSOCK_PID_FILE+" -c "+basedir+"/redsocks.conf" );
+        if (!r.success()) {
+            Log.v("tproxy", "Error starting proxy.sh (" + r.stderr + ")");
+            cmd.sh.runWaitFor(basedir+"/proxy.sh stop "+ basedir);
+            Log.e(LOGTAG, "Failed to stop proxy.sh ("+ r.stderr + ")", null);
+        }
+        return r.success();
+    }
+    
+    static boolean applyIptables(String basedir) {
+        ShellCommand cmd = new ShellCommand();
+        CommandResult r = cmd.su.runWaitFor(basedir+"/redirect.sh start");
+        if (!r.success()) {
+           Log.v("tproxy", "Error starting redirect.sh (" + r.stderr +")");
+           //todo kill redsocks process
+           Log.e(LOGTAG, "Failed to start redirect.sh ("+ r.stderr + ")", null);
+           return false;
+       } else {
+           Log.v("tproxy", "Successfully ran redirect.sh start ");
+           return true;
+       }
+    }
+    
+    static String getVersion(Context cxt) {
+        String version = "N/A";
+        PackageInfo pi = null;
+        try {
+            pi = cxt.getPackageManager().getPackageInfo(cxt.getPackageName(), 0);
+            version = pi.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(LOGTAG, "could not access package name", e);
+        }
+        return version;
+    }
+    
+    void stopProxyClearIPTables() {
+        ShellCommand cmd = new ShellCommand();
+        cmd.sh.runWaitFor("kill `cat "+basedir+"/redsocks.pid`");
+        new File(basedir, "redsocks.pid").delete();
+        new File(basedir, "redsocks.conf").delete();
+        cmd.su.runWaitFor(basedir+"/redirect.sh stop");
     }
 
 	public void copyfile(String file) {
@@ -314,7 +332,6 @@ public class Main extends PreferenceActivity {
 	findPreference("username").setEnabled(!b);
 	findPreference("password").setEnabled(!b);
 	findPreference("isAuthEnabled").setEnabled(!b);
-	findPreference("proxyType").setEnabled(!b);
 	findPreference("proxyHost").setEnabled(!b);
 	findPreference("proxyPort").setEnabled(!b);
 
