@@ -59,7 +59,7 @@ public class Main extends PreferenceActivity {
 		  basedir = getBaseContext().getFilesDir().getAbsolutePath();
 		} catch (Exception e) {}
 
-		copyfile("redsocks-armv71");
+		copyfile("redsocks-armv7l");
 		copyfile("redsocks-i686");
 		copyfile("runproxy.sh");
 		copyfile("redirect.sh");
